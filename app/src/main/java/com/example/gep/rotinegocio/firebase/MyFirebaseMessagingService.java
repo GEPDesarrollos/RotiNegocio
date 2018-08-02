@@ -10,20 +10,19 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.gep.rotinegocio.R;
+import com.example.gep.rotinegocio.activities.MainActivity;
 import com.example.gep.rotinegocio.fragment.PedidosFragment;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
-    private String TAG="GUILLE";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            Log.d("Message data payload: ", ""+remoteMessage.getData());
 
 
 
@@ -31,7 +30,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getData());
+            Log.d("Message Body: ","" + remoteMessage.getData());
         }
 
         showNotification(remoteMessage.getData().get("idPedido"),remoteMessage.getData().get("remitente"));
@@ -51,29 +50,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         String titulo = (idPedido == null || idPedido.isEmpty()) ? "Notificación importante" : idPedido;
 
-        Intent notIntent = new Intent(getApplicationContext(), PedidosFragment.class);
+        Intent notIntent = new Intent(getApplicationContext(), MainActivity.class);
         notIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        String channelId = getString(R.string.default_notification_channel_id);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
 
         Log.d("Notificacion",idPedido);
 
-
-
-
         PendingIntent contIntent = PendingIntent.getActivity(getApplicationContext(), 0, notIntent, 0);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,channelId)
                 .setContentIntent(contIntent)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(titulo)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(idPedido)
                 .setContentText(remitente)
+                .setSound(alarmSound)
                 .setAutoCancel(true);
 
-
-        notificationBuilder.setContentIntent(contIntent);
-
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        notificationBuilder.setSound(alarmSound);
 
 
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -81,6 +76,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0, notificationBuilder.build());
 
 
+    }
+    
+    @Override
+    public void onNewToken(String token) {
+        Log.d("Refreshed token: ","" + token);
+
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // Instance ID token to your app server.
+        sendRegistrationToServer(token);
+    }
+
+    private void sendRegistrationToServer(String token) {
     }
 
 
