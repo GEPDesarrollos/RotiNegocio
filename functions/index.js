@@ -3,13 +3,15 @@
     admin.initializeApp();
 
     exports.respuesta = functions.database.ref('/pedido/{pedidoId}').onCreate((snap, context) => {
+
       const createdData = snap.val(); // data that was created
-      const idPedido=context.params.pedidoId;//se pone el nombre del ref {pedidoId}
-      const nombre=context.auth.token.name;
-      var topic="rotiseria";
+      const nombre = context.auth.token.name || null;
+      const idPedido = context.params.pedidoId;//.pedidoId;|se pone el nombre del ref {pedidoId}
+      const topic="rotiseria";
 
       console.log(context.params.pedidoId);
-      console.log(""+createdData);
+      console.log(createdData);
+      console.log(context);
 
       var payload = {
                         data: {
